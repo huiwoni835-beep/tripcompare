@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>여행 앱 한눈에 비교 | TripCompare</title>
+<style>
+  :root{
+    --bg:#ffffff; --bg-soft:#EAEDFF; --card:#ffffff; --ink:#081018; --sub:#3d4c58;
+    --brand:#3D5AFE; --brand-dark:#304FFE; --brand-vivid:#536DFE; --brand-light:#DCE2FF;
+    --cta:#FF6E40; --cta-dark:#FF3D00;
+    --good:#00934C; --warn:#B45300; --bad:#D6203C;
+    --border:#8CA0FF;
+    --price:#0B7A3B;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;padding-top:66px;font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;-webkit-text-size-adjust:100%;}
+  svg{display:block;}
+  a{color:inherit;}
+  button{font-family:inherit;}
+
+  /* ---------- TOP BRAND BAR ---------- */
+  .topbar{position:fixed;top:0;left:0;right:0;height:66px;background:#fff;border-bottom:1.5px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 18px;z-index:70;box-shadow:0 2px 10px rgba(0,60,100,.06);}
+  .topbar-logo{width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,var(--brand-vivid),var(--brand-dark));display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 10px rgba(48,79,254,.3);}
+  .topbar-logo .ic{width:24px;height:24px;stroke:#fff;}
+  .topbar-name{font-size:18px;font-weight:800;color:var(--ink);}
+  .topbar-tag{font-size:12px;font-weight:600;color:var(--sub);border-left:1.5px solid var(--border);padding-left:10px;margin-left:2px;}
+  .topbar-trust{margin-left:auto;font-size:11.5px;font-weight:700;color:var(--brand-dark);display:flex;align-items:center;gap:5px;}
+  .topbar-trust .ic{width:14px;height:14px;}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ---------- HERO ---------- */
+  .hero{background:linear-gradient(135deg,rgba(61,90,254,.88),rgba(48,79,254,.92)),url('https://picsum.photos/id/1018/2400/1000') center/cover no-repeat;padding:44px 20px 30px;text-align:center;position:relative;overflow:hidden;}
+  .hero-blob{position:absolute;border-radius:50%;filter:blur(2px);opacity:.55;}
+  .hero-blob.b1{width:140px;height:140px;background:#FFD666;top:-40px;left:-30px;}
+  .hero-blob.b2{width:110px;height:110px;background:#FF6FA5;bottom:-30px;right:-20px;}
+  .hero-blob.b3{width:90px;height:90px;background:#5CEBD0;bottom:20px;left:8%;opacity:.4;}
+  .hero-illustration{position:relative;width:min(230px,68%);height:auto;margin:0 auto 10px;}
+  .eyebrow{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.02em;background:#fff;color:var(--brand-dark);padding:6px 14px;border-radius:999px;margin-bottom:14px;box-shadow:0 3px 10px rgba(0,20,40,.2);position:relative;}
+  .hero h1{position:relative;font-size:clamp(23px,5vw,34px);margin:0 0 12px;font-weight:800;line-height:1.4;color:#fff;animation:fadeUp .5s ease both;}
+  .hero p{position:relative;font-size:clamp(14px,3.4vw,16px);font-weight:500;color:#ffffff;margin:0 auto 22px;max-width:480px;line-height:1.6;animation:fadeUp .5s ease .1s both;}
+
+  /* ---------- DISCLOSURE BANNER ---------- */
+  .disclosure{background:#FFF6E5;border-bottom:1px solid #F0D389;color:#7A5300;font-size:12px;text-align:center;padding:8px 16px;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:600;}
+  .disclosure .ic{width:14px;height:14px;flex-shrink:0;}
+
+  .wrap{max-width:900px;margin:0 auto;padding:0 20px;}
+
+  section{padding:40px 0;}
+  .section-head{margin-bottom:22px;}
+  .step-tag{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:var(--brand-dark);letter-spacing:.03em;margin:0 0 8px;}
+  .section-title{font-size:clamp(20px,4.2vw,24px);font-weight:800;margin:0 0 8px;}
+  .section-sub{font-size:14.5px;color:var(--sub);margin:0;}
+
+  /* ---------- ICONS ---------- */
+  .ic{stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+
+  /* ---------- COLORFUL ICON TILES ---------- */
+  .icon-tile{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 14px rgba(0,0,0,.14);transition:.2s;}
+  .icon-tile .ic{width:24px;height:24px;stroke:#fff;stroke-width:2;}
+  .icon-tile.tile-green,
+  .icon-tile.tile-purple,
+  .icon-tile.tile-rainbow,
+  .icon-tile.tile-blue,
+  .icon-tile.tile-pink,
+  .icon-tile.tile-amber,
+  .icon-tile.tile-teal{background:linear-gradient(135deg,var(--brand-vivid),var(--brand-dark));}
+  .picker-chip:focus-visible, .book-btn:focus-visible, .row-cta:focus-visible{outline:3px solid var(--brand-dark);outline-offset:2px;}
+
+  /* ---------- SEARCH ---------- */
+  .search-box{position:relative;margin-top:18px;}
+  .search-box input{width:100%;padding:13px 42px 13px 16px;border:1px solid var(--border);border-radius:12px;font-size:16px;background:#fff;color:var(--ink);outline:none;transition:.15s;}
+  .search-box input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(61,90,254,.25);}
+  .search-box .ic{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--sub);pointer-events:none;}
+
+  /* ---------- CATEGORY TABS ---------- */
+  .cat-tab-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+  .cat-tab{display:flex;align-items:center;gap:7px;background:#fff;border:1.5px solid var(--border);color:var(--ink);font-size:13.5px;font-weight:800;padding:10px 16px;border-radius:12px;cursor:pointer;transition:.15s;}
+  .cat-tab:hover{border-color:var(--brand);color:var(--brand-dark);}
+  .cat-tab.active{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 6px 14px rgba(61,90,254,.25);}
+  .cat-tab-ic{width:18px;height:18px;display:flex;flex-shrink:0;}
+  .cat-tab-ic .ic{width:18px;height:18px;}
+  @media(max-width:640px){.cat-tab-bar{gap:8px;} .cat-tab{padding:9px 12px;font-size:12.5px;flex:1;justify-content:center;}}
+
+  /* ---------- SORT / FILTER BAR ---------- */
+  .sort-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+  .sort-chip{background:#fff;border:1.5px solid var(--border);color:var(--sub);font-size:12.5px;font-weight:700;padding:7px 14px;border-radius:999px;cursor:pointer;transition:.15s;}
+  .sort-chip:hover{border-color:var(--brand);color:var(--brand-dark);}
+  .sort-chip.active{background:var(--brand);border-color:var(--brand);color:#fff;}
+
+  /* ---------- RESULTS ---------- */
+  #results{padding-top:4px;}
+  .cat-block{display:flex;flex-direction:column;gap:14px;}
+
+  .app-badge{width:44px;height:44px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;letter-spacing:-.02em;}
+  .app-badge.sm{width:34px;height:34px;font-size:12.5px;border-radius:9px;}
+  .app-logo-wrap{position:relative;display:inline-flex;flex-shrink:0;}
+  .app-logo-img{width:44px;height:44px;border-radius:12px;object-fit:contain;background:#fff;border:1.5px solid var(--border);padding:4px;flex-shrink:0;}
+  .app-logo-img.sm{width:34px;height:34px;border-radius:9px;padding:3px;}
+
+  .rec-card{position:relative;background:#fff;border:1.5px solid var(--border);border-radius:18px;padding:0;overflow:hidden;box-shadow:0 6px 20px rgba(18,37,48,.05);animation:fadeUp .4s ease both;}
+  .rec-photo{height:128px;background-size:cover;background-position:center;position:relative;}
+  .rec-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,16,24,0) 55%,rgba(8,16,24,.32) 100%);}
+  .rec-card-body{padding:22px 24px 22px;}
+  .ribbon{position:absolute;top:12px;left:14px;background:var(--brand);color:#fff;font-size:12px;font-weight:800;padding:5px 12px;border-radius:999px;display:flex;align-items:center;gap:5px;box-shadow:0 3px 10px rgba(0,0,0,.2);z-index:2;}
+  .ribbon .ic{width:13px;height:13px;}
+  .rec-top{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+  .rec-name{font-size:20px;font-weight:800;margin:0;line-height:1.3;}
+  .rec-rating{font-size:13.5px;color:var(--warn);font-weight:700;}
+  .rec-rating span{color:var(--sub);font-weight:400;}
+  .specialty-pill{display:inline-flex;align-items:center;gap:6px;background:var(--brand-light);color:var(--brand-dark);font-size:13.5px;font-weight:800;padding:8px 14px;border-radius:999px;margin:0 0 12px;}
+  .specialty-pill .ic{width:14px;height:14px;flex-shrink:0;}
+  .rec-tagline{font-size:14.5px;color:var(--ink);margin:0 0 18px;font-weight:600;line-height:1.6;padding-bottom:16px;border-bottom:1px solid var(--bg-soft);}
+  .card-section-label{font-size:12.5px;font-weight:800;color:var(--ink);text-transform:uppercase;letter-spacing:.03em;margin:0 0 10px;}
+  .highlight-list{list-style:none;margin:0 0 18px;padding:0;display:flex;flex-direction:column;gap:9px;}
+  .highlight-list li{font-size:14.5px;font-weight:600;color:var(--ink);display:flex;gap:9px;align-items:flex-start;line-height:1.55;}
+  .highlight-list li .ic{width:16px;height:16px;color:var(--good);flex-shrink:0;margin-top:2px;}
+  .caution-line{font-size:13.5px;font-weight:600;color:#5C3E00;background:#FFF9EC;border:1px solid #F0D389;border-radius:10px;padding:11px 13px;margin-bottom:18px;display:flex;gap:9px;align-items:flex-start;line-height:1.55;}
+  .caution-line .ic{width:15px;height:15px;color:var(--warn);flex-shrink:0;margin-top:2px;}
+  .rec-actions{display:flex;gap:10px;align-items:center;padding-top:2px;}
+  .book-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;text-align:center;background:var(--cta);color:#fff;text-decoration:none;padding:14px;border-radius:12px;font-weight:800;font-size:15px;transition:.15s;box-shadow:0 6px 16px rgba(255,61,0,.35);}
+  .book-btn:hover{background:var(--cta-dark);}
+  .book-btn .ic{width:16px;height:16px;}
+  .compare-check{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--sub);white-space:nowrap;cursor:pointer;padding:8px 4px;}
+  .compare-check input{width:16px;height:16px;accent-color:var(--brand);cursor:pointer;}
+
+  .row-list{display:flex;flex-direction:column;gap:8px;}
+  .row-item{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:11px 14px;box-shadow:0 3px 10px rgba(0,40,70,.05);animation:fadeUp .35s ease both;}
+  .row-main{flex:1;min-width:0;}
+  .row-name{font-size:14.5px;font-weight:800;margin:0;display:flex;align-items:center;gap:5px;}
+  .row-tagline{font-size:12.5px;color:var(--sub);margin:2px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .row-specialty{font-size:12px;font-weight:700;color:var(--brand-dark);white-space:nowrap;margin-right:2px;max-width:150px;overflow:hidden;text-overflow:ellipsis;}
+  .row-cta{font-size:13px;font-weight:800;color:var(--cta);text-decoration:none;white-space:nowrap;padding:8px 12px;border:1.5px solid var(--cta);border-radius:8px;flex-shrink:0;}
+  .row-cta:hover{background:var(--cta);color:#fff;}
+  .popular-item{border-color:var(--border);background:#fff;}
+  .popular-item .row-cta{background:var(--cta);color:#fff;border-color:var(--cta);}
+  .popular-item .row-cta:hover{background:var(--cta-dark);}
+  .fire-ic{width:13px;height:13px;color:#FF7A18;}
+
+  .no-result{text-align:center;color:var(--sub);font-size:14px;padding:32px 0;}
+
+  /* ---------- WHY SECTION ---------- */
+  .why-row{display:flex;flex-wrap:wrap;gap:12px;}
+  .why-chip{flex:1;min-width:170px;background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:16px;font-size:13px;color:var(--sub);display:flex;gap:12px;align-items:center;box-shadow:0 4px 12px rgba(0,60,100,.06);}
+  .why-chip .icon-tile{width:40px;height:40px;border-radius:12px;}
+  .why-chip .icon-tile .ic{width:20px;height:20px;}
+  .why-chip b{color:var(--ink);display:block;font-size:13.5px;margin-bottom:2px;}
+
+  /* ---------- METHODOLOGY / ABOUT ---------- */
+  .about-box{background:var(--bg-soft);border:1.5px solid var(--border);border-radius:16px;padding:20px;font-size:13.5px;color:var(--sub);}
+  .about-box h3{margin:0 0 8px;font-size:15px;color:var(--ink);}
+  .about-box ul{margin:8px 0 0;padding-left:18px;}
+  .about-box li{margin-bottom:4px;}
+
+  footer{text-align:center;font-size:12.5px;color:var(--sub);padding:32px 20px 100px;}
+  footer a{text-decoration:underline;cursor:pointer;}
+
+  /* ---------- POLICY MODAL ---------- */
+  .policy-modal{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .policy-modal-backdrop{position:absolute;inset:0;background:rgba(8,16,24,.55);}
+  .policy-modal-box{position:relative;background:#fff;border-radius:18px;max-width:560px;width:100%;max-height:80vh;overflow-y:auto;padding:28px 24px;box-shadow:0 20px 50px rgba(0,0,0,.25);animation:fadeUp .25s ease both;}
+  .policy-modal-close{position:absolute;top:14px;right:14px;background:var(--bg-soft);border:none;width:32px;height:32px;border-radius:50%;font-size:16px;color:var(--sub);cursor:pointer;line-height:1;}
+  .policy-modal-close:hover{background:var(--brand-light);color:var(--brand-dark);}
+  .policy-modal-box h3{font-size:18px;font-weight:800;margin:0 0 14px;color:var(--ink);padding-right:24px;}
+  .policy-modal-box h4{font-size:14px;font-weight:800;margin:18px 0 6px;color:var(--ink);}
+  .policy-modal-box p{font-size:13.5px;color:var(--sub);line-height:1.7;margin:0 0 10px;}
+  .policy-modal-box ul{margin:0 0 10px;padding-left:18px;}
+  .policy-modal-box li{font-size:13.5px;color:var(--sub);line-height:1.7;margin-bottom:4px;}
+  .policy-modal-box .policy-updated{font-size:12px;color:var(--sub);opacity:.75;margin-top:16px;}
+
+  /* ---------- COMPARE STICKY BAR ---------- */
+  .compare-bar{position:fixed;left:0;right:0;bottom:0;background:var(--ink);color:#fff;padding:14px 20px;display:none;align-items:center;justify-content:space-between;gap:12px;z-index:40;box-shadow:0 -6px 20px rgba(0,0,0,.15);animation:fadeUp .25s ease both;}
+  .compare-bar.show{display:flex;}
+  .compare-bar span{font-size:14px;font-weight:600;}
+  .compare-bar button{background:var(--cta);color:#fff;border:none;padding:11px 20px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;}
+  .compare-bar button:hover{background:var(--cta-dark);}
+
+  .compare-trigger-btn{background:var(--cta);color:#fff;border:none;padding:12px 18px;border-radius:12px;font-weight:800;font-size:13.5px;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 6px 14px rgba(255,61,0,.3);white-space:nowrap;flex-shrink:0;}
+  .compare-trigger-btn:hover{background:var(--cta-dark);}
+  .compare-trigger-btn .ic{width:16px;height:16px;stroke:#fff;}
+
+  /* ---------- COMPARE PAGE ---------- */
+  #comparePage{animation:fadeUp .3s ease both;padding-top:24px;min-height:60vh;}
+  .back-link{display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:var(--brand-dark);font-size:13.5px;font-weight:800;cursor:pointer;padding:8px 0;}
+  .back-link:hover{text-decoration:underline;}
+  .back-link .ic{width:16px;height:16px;}
+
+  .compare-tray{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 14px;min-height:34px;}
+  .tray-empty{font-size:13px;color:var(--sub);margin:6px 0;}
+  .tray-chip{display:flex;align-items:center;gap:6px;background:var(--brand-light);border:1.5px solid var(--brand);border-radius:999px;padding:5px 6px 5px 5px;font-size:13px;font-weight:800;color:var(--brand-dark);}
+  .tray-chip .app-badge.sm{width:24px;height:24px;font-size:10px;border-radius:7px;}
+  .tray-remove{background:none;border:none;color:var(--brand-dark);font-size:16px;cursor:pointer;line-height:1;padding:0 2px;}
+
+  .picker-label{font-size:12.5px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.03em;margin:0 0 8px;}
+  .compare-picker{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;padding-bottom:20px;border-bottom:1.5px solid var(--border);}
+  .picker-chip{display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid var(--border);border-radius:999px;padding:6px 12px 6px 6px;font-size:12.5px;font-weight:700;color:var(--ink);cursor:pointer;transition:.15s;}
+  .picker-chip:hover{border-color:var(--brand);}
+  .picker-chip.active{background:var(--brand);border-color:var(--brand);color:#fff;}
+  .picker-chip .app-badge.sm{width:22px;height:22px;font-size:9.5px;border-radius:6px;}
+
+  .compare-query-box{margin-bottom:18px;}
+  .compare-query-label{display:block;font-size:13.5px;font-weight:800;color:var(--ink);margin-bottom:8px;}
+  #compareQuery{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;color:var(--ink);outline:none;transition:.15s;}
+  #compareQuery:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(61,90,254,.22);}
+
+  .score-card{background:var(--bg-soft);border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;}
+  .score-top{display:flex;align-items:center;gap:8px;margin-bottom:9px;}
+  .score-name{font-size:14.5px;font-weight:800;color:var(--ink);flex:1;display:flex;align-items:center;gap:6px;}
+  .best-tag{background:var(--cta);color:#fff;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;}
+  .score-pct{font-size:16px;font-weight:800;color:var(--brand-dark);}
+  .score-bar{height:9px;background:#fff;border:1px solid var(--border);border-radius:999px;overflow:hidden;margin-bottom:9px;}
+  .score-fill{height:100%;background:linear-gradient(90deg,var(--brand),var(--brand-vivid));border-radius:999px;transition:width .4s ease;}
+  .score-reason{font-size:13px;color:var(--ink);margin:0;line-height:1.55;}
+  .score-note{font-size:11.5px;color:var(--sub);margin:2px 0 12px;}
+  .score-note.score-hint{font-size:13.5px;color:var(--sub);background:var(--bg-soft);border:1px dashed var(--border);border-radius:10px;padding:14px;text-align:center;}
+
+  .compare-insight{display:flex;flex-direction:column;gap:12px;margin-bottom:20px;}
+  .insight-box{border-radius:14px;padding:16px 18px;}
+  .insight-box.common{background:var(--brand-light);border:1.5px solid var(--brand);}
+  .insight-box.diff{background:#FFF3EC;border:1.5px solid #FFC4A8;}
+  .insight-title{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:800;margin:0 0 9px;}
+  .insight-box.common .insight-title{color:var(--brand-dark);}
+  .insight-box.diff .insight-title{color:#C23F00;}
+  .insight-title .ic{width:16px;height:16px;flex-shrink:0;}
+  .insight-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;}
+  .insight-list li{font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.55;padding-left:14px;position:relative;}
+  .insight-list li::before{content:"";position:absolute;left:0;top:8px;width:5px;height:5px;border-radius:50%;background:currentColor;}
+  .detail-table-label{font-size:12.5px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.03em;margin:18px 0 10px;}
+  .compare-table{width:100%;border-collapse:separate;border-spacing:0;font-size:13.5px;border-radius:14px;overflow:hidden;border:1.5px solid var(--border);}
+  .compare-table th,.compare-table td{border-bottom:1px solid var(--border);border-right:1px solid var(--border);padding:13px 15px;text-align:left;vertical-align:top;}
+  .compare-table th:last-child,.compare-table td:last-child{border-right:none;}
+  .compare-table tr:last-child td{border-bottom:none;}
+  .compare-table th{background:var(--bg-soft);font-size:12.5px;color:var(--sub);white-space:nowrap;}
+  .compare-table tr:nth-child(even) td:not(:first-child){background:#FAFBFF;}
+  .compare-table th:first-child,.compare-table td:first-child{position:sticky;left:0;z-index:2;background:var(--bg-soft);font-weight:800;color:var(--ink);white-space:nowrap;border-right:2px solid var(--border);}
+  .compare-table th:first-child{z-index:3;}
+  .row-label{display:flex;align-items:center;gap:7px;}
+  .row-label .ic{width:15px;height:15px;color:var(--brand-dark);flex-shrink:0;}
+  .compare-table .mini-cta{display:inline-block;background:var(--cta);color:#fff;text-decoration:none;font-size:12.5px;font-weight:700;padding:7px 12px;border-radius:8px;}
+  .compare-table .specialty-cell{color:var(--brand-dark);font-weight:800;}
+  .rating-value{font-weight:800;color:var(--ink);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .rating-bar-wrap{margin-top:7px;}
+  .rating-bar{width:100%;max-width:110px;height:7px;background:var(--bg-soft);border-radius:999px;overflow:hidden;}
+  .rating-bar-fill{height:100%;background:linear-gradient(90deg,var(--brand),var(--brand-vivid));border-radius:999px;}
+  .compare-table .best-rating-cell{background:var(--brand-light) !important;}
+  .mini-best{background:var(--cta);color:#fff;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:999px;white-space:nowrap;}
+
+  /* ---------- MOBILE ---------- */
+  @media(max-width:640px){
+    .topbar-tag{display:none;}
+    .topbar-trust{display:none;}
+    .hero{padding:36px 16px 26px;}
+    section{padding:30px 0;}
+    .rec-card-body{padding:18px 16px;}
+    .rec-photo{height:110px;}
+    .rec-name{font-size:17px;}
+    .rec-actions{flex-direction:column;align-items:stretch;}
+    .compare-check{justify-content:center;}
+    .row-item{flex-wrap:wrap;}
+    .row-tagline{white-space:normal;}
+    .why-chip{min-width:100%;}
+    .compare-trigger-btn{width:100%;justify-content:center;}
+  }
+</style>
+</head>
+<body>
+
+<div class="disclosure">
+  <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+  본 페이지의 모든 "예약하러가기/보기/예약" 버튼은 제휴 링크입니다. 예약 성사 시 TripCompare가 수수료를 받을 수 있어요. 가격·정책은 예시이며 실제 결제 전 해당 서비스에서 최종 확인하세요.
+</div>
+
+<div class="topbar">
+  <div class="topbar-logo"><svg class="ic" viewBox="0 0 24 24" stroke-width="2.2"><path d="M12 2C7.6 2 4 5.6 4 10c0 5.7 6.6 11.2 7.3 11.8a1 1 0 0 0 1.4 0C13.4 21.2 20 15.7 20 10c0-4.4-3.6-8-8-8Z"/><path d="m8.5 10 2.3 2.3L15.5 8"/></svg></div>
+  <span class="topbar-name">TripCompare</span>
+  <span class="topbar-tag">✈ 여행 앱 비교 서비스</span>
+  <span class="topbar-trust">
+    <svg class="ic" viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6l-8-4Z"/><path d="m9 12 2 2 4-4"/></svg>
+    누적 비교 32만+ 회
+  </span>
+</div>
+
+<div id="mainView">
+<div class="hero">
+  <div class="hero-blob b1"></div>
+  <div class="hero-blob b2"></div>
+  <div class="hero-blob b3"></div>
+  <svg class="hero-illustration" viewBox="0 0 280 150" xmlns="http://www.w3.org/2000/svg">
+    <!-- 숙박 타일 -->
+    <rect x="14" y="46" width="70" height="70" rx="18" fill="#536DFE"/>
+    <g transform="translate(33,64)" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="0" y="0" width="34" height="24" rx="2"/>
+      <path d="M8 24v-7h18v7"/>
+      <path d="M4 9h5M25 9h5"/>
+    </g>
+    <text x="49" y="133" text-anchor="middle" font-size="13" font-weight="800" fill="#ffffff" font-family="inherit">숙박</text>
+
+    <!-- 투어 타일 (강조 + 추천 배지) -->
+    <rect x="102" y="26" width="76" height="76" rx="20" fill="#FF6E40"/>
+    <g transform="translate(120,44)" stroke="#fff" stroke-width="2.3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="0" y="6" width="36" height="24" rx="4"/>
+      <path d="M9 6V4a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2"/>
+    </g>
+    <circle cx="140" cy="18" r="13" fill="#304FFE"/>
+    <path d="M134 18l4 4 8-8" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="140" y="119" text-anchor="middle" font-size="14" font-weight="800" fill="#ffffff" font-family="inherit">투어</text>
+
+    <!-- 유심 타일 -->
+    <rect x="196" y="46" width="70" height="70" rx="18" fill="#536DFE"/>
+    <g transform="translate(220,60)" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="0" y="0" width="20" height="38" rx="4"/>
+      <path d="M6 34h8"/>
+    </g>
+    <text x="231" y="133" text-anchor="middle" font-size="13" font-weight="800" fill="#ffffff" font-family="inherit">유심</text>
+
+    <!-- 비교 화살표 -->
+    <path d="M90 82h9M98 78l4 4-4 4" stroke="#ffffff" stroke-width="2.3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>
+    <path d="M182 82h9M190 78l4 4-4 4" stroke="#ffffff" stroke-width="2.3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>
+  </svg>
+  <span class="eyebrow">TripCompare</span>
+  <h1>여행 앱, 어디로 예약해야<br>가장 이득일까요?</h1>
+  <p>복잡한 취소 정책과 애매한 안내 대신, 각 서비스가 무엇에 특화되어 있는지 한눈에 비교해드려요.</p>
+</div>
+
+<div class="wrap">
+
+  <section id="step1">
+    <div class="section-head">
+      <p class="step-tag">
+        <svg class="ic" viewBox="0 0 24 24" width="14" height="14"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        카테고리로 찾아보기
+      </p>
+      <h2 class="section-title">어떤 서비스를 비교할까요?</h2>
+      <p class="section-sub">카테고리를 선택한 뒤, 비교하기를 눌러 원하는 서비스를 골라보세요.</p>
+    </div>
+
+    <div class="cat-tab-bar" id="catTabBar">
+      <button class="cat-tab active" data-cat="all">
+        <span class="cat-tab-ic"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 9l-2 6-4 2 2-6 4-2Z"/></svg></span>
+        전체
+      </button>
+      <button class="cat-tab" data-cat="hotel">
+        <span class="cat-tab-ic"><svg class="ic" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 21v-4h6v4"/><path d="M8 7h2M14 7h2M8 11h2M14 11h2"/></svg></span>
+        호텔·숙박
+      </button>
+      <button class="cat-tab" data-cat="tour">
+        <span class="cat-tab-ic"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg></span>
+        투어
+      </button>
+      <button class="cat-tab" data-cat="esim">
+        <span class="cat-tab-ic"><svg class="ic" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></span>
+        유심
+      </button>
+    </div>
+
+    <button class="compare-trigger-btn" id="gotoCompareBtn" style="width:100%;justify-content:center;padding:16px;font-size:15px;">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M9 3v18M15 3v18"/><path d="M4 8h5M15 8h5M4 16h5M15 16h5"/></svg>
+      비교하기
+    </button>
+  </section>
+
+  <section id="step2">
+    <div class="section-head" style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+      <div>
+        <p class="step-tag">
+          <svg class="ic" viewBox="0 0 24 24" width="14" height="14"><path d="M4 12l5 5L20 6"/></svg>
+          추천 결과
+        </p>
+        <h2 class="section-title" id="resultsTitle">인기 TOP 3</h2>
+        <p class="section-sub" id="resultsSub">가장 많이 찾는 서비스만 먼저 보여드려요.</p>
+      </div>
+      <button class="compare-trigger-btn" id="compareOpenBtn2">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M9 3v18M15 3v18"/><path d="M4 8h5M15 8h5M4 16h5M15 16h5"/></svg>
+        비교하기
+      </button>
+    </div>
+
+    <div class="sort-bar" id="sortBar">
+      <button class="sort-chip active" data-sort="popular">인기순</button>
+      <button class="sort-chip" data-sort="rating">평점순</button>
+    </div>
+
+    <div id="results"></div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <p class="step-tag">
+        <svg class="ic" viewBox="0 0 24 24" width="14" height="14"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+        TripCompare 비교 기준
+      </p>
+      <h2 class="section-title">광고 없이, 이 3가지 기준으로만 비교해요</h2>
+      <p class="section-sub">순위를 사고파는 광고성 배치 대신, 실제로 예약에 영향을 주는 기준만 그대로 보여드려요.</p>
+    </div>
+    <div class="why-row">
+      <div class="why-chip">
+        <div class="icon-tile tile-amber"><svg class="ic" viewBox="0 0 24 24"><path d="M20 10 14 4H6a2 2 0 0 0-2 2v8l6 6 10-10Z"/><circle cx="9" cy="9" r="1.2"/></svg></div>
+        <div><b>실결제가 공개</b>표시가에 숨어있는 세금·수수료까지 함께 알려드려요</div>
+      </div>
+      <div class="why-chip">
+        <div class="icon-tile tile-blue"><svg class="ic" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg></div>
+        <div><b>취소 조건 비교</b>서비스마다 다른 무료취소 기준을 나란히 비교해요</div>
+      </div>
+      <div class="why-chip">
+        <div class="icon-tile tile-purple"><svg class="ic" viewBox="0 0 24 24"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="2" y="13" width="5" height="7" rx="2"/><rect x="17" y="13" width="5" height="7" rx="2"/></svg></div>
+        <div><b>진짜 리뷰 기준</b>광고성 후기 대신 실제 리뷰 수·평점 그대로 보여드려요</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="about-box">
+      <h3>비교 기준은 어떻게 정하나요?</h3>
+      <ul>
+        <li>가격은 표시하지 않아요. 같은 서비스라도 날짜·인원·지역 등 조건에 따라 가격이 크게 달라져서, 가격만 보고 고르면 오히려 오해가 생길 수 있어요.</li>
+        <li>대신 각 서비스가 무엇에 특화되어 있는지, 실결제가(수수료)·취소 조건이 어떻게 다른지를 그대로 보여드려요.</li>
+        <li>평점은 각 서비스의 앱스토어·구글플레이 공개 평점을 기준으로 매주 업데이트해요 (2026.07 기준).</li>
+        <li>적합도 점수는 사용자가 입력한 키워드와 각 서비스의 강점/주의사항 텍스트를 단순 매칭한 참고용 지표로, 공식 순위가 아니에요.</li>
+        <li>TripCompare는 예약 성사 시 일부 서비스로부터 제휴 수수료를 받을 수 있으며, 이는 추천 순서에 영향을 주지 않도록 평점 기준으로만 정렬해요.</li>
+      </ul>
+    </div>
+  </section>
+
+</div>
+</div>
+
+<div id="comparePage" style="display:none;">
+  <div class="wrap">
+    <button class="back-link" id="backToMainBtn">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      목록으로 돌아가기
+    </button>
+
+    <div class="section-head" style="margin-top:14px;">
+      <p class="step-tag">
+        <svg class="ic" viewBox="0 0 24 24" width="14" height="14"><path d="M9 3v18M15 3v18"/><path d="M4 8h5M15 8h5M4 16h5M15 16h5"/></svg>
+        서비스 비교
+      </p>
+      <h2 class="section-title">비교할 서비스를 선택하세요</h2>
+      <p class="section-sub" id="comparePageSub">카테고리를 고르고, 비교하고 싶은 서비스를 체크하세요.</p>
+    </div>
+
+    <div class="cat-tab-bar" id="compareCatTabBar">
+      <button class="cat-tab active" data-cat="all">
+        <span class="cat-tab-ic"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 9l-2 6-4 2 2-6 4-2Z"/></svg></span>
+        전체
+      </button>
+      <button class="cat-tab" data-cat="hotel">
+        <span class="cat-tab-ic"><svg class="ic" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 21v-4h6v4"/><path d="M8 7h2M14 7h2M8 11h2M14 11h2"/></svg></span>
+        호텔·숙박
+      </button>
+      <button class="cat-tab" data-cat="tour">
+        <span class="cat-tab-ic"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg></span>
+        투어
+      </button>
+      <button class="cat-tab" data-cat="esim">
+        <span class="cat-tab-ic"><svg class="ic" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></span>
+        유심
+      </button>
+    </div>
+
+    <p class="picker-label">이 카테고리의 서비스</p>
+    <div class="compare-picker" id="comparePicker"></div>
+
+    <div class="compare-tray" id="compareTray"></div>
+
+    <div class="compare-query-box">
+      <label class="compare-query-label" for="compareQuery">어떤 걸 비교하고 싶으세요?</label>
+      <input type="text" id="compareQuery" placeholder="예: 가격, 취소 정책, 고객지원, 빠른 예약" autocomplete="off">
+    </div>
+
+    <div id="scoreResults"></div>
+
+    <div id="compareInsight"></div>
+
+    <div id="detailTableWrap" style="overflow-x:auto;">
+      <p class="detail-table-label" id="detailTableLabel" style="display:none;">상세 비교표</p>
+      <table class="compare-table" id="compareTable"></table>
+    </div>
+  </div>
+</div>
+
+<footer>
+  본 페이지는 정보 제공을 목적으로 하며, 실제 가격·정책은 각 서비스에서 최종 확인하시기 바랍니다.<br>
+  사이트 내 모든 "예약하러가기 / 보기 / 예약" 버튼은 제휴 링크입니다. 해당 버튼을 통해 예약이 성사되면 TripCompare가 각 서비스로부터 일정 수수료를 받을 수 있어요. 실제 서비스 로고는 각 브랜드의 자산이며 식별 목적으로만 사용되었고, 유심·로밍 카테고리의 4개 서비스는 예시로 만든 가상의 서비스로 자체 제작 아이콘을 사용합니다.<br>
+  <a href="#" data-modal="terms">이용약관</a> · <a href="#" data-modal="privacy">개인정보처리방침</a> · <a href="#" data-modal="contact">제휴 문의</a>
+</footer>
+
+<div class="policy-modal" id="policyModal" style="display:none;">
+  <div class="policy-modal-backdrop" id="policyModalBackdrop"></div>
+  <div class="policy-modal-box" role="dialog" aria-modal="true">
+    <button class="policy-modal-close" id="policyModalClose" aria-label="닫기">✕</button>
+    <div id="policyModalBody"></div>
+  </div>
+</div>
+
+<div class="compare-bar" id="compareBar">
+  <span id="compareCount">0개 선택됨</span>
+  <button id="compareOpenBtn">비교하기</button>
+</div>
+
+<script>
+const services = [
+  {
+    name: "야놀자",
+    scope: "domestic",
+    badgeColor: "#1B2A4A",
+    badgeInitial: "야",
+    logoDomain: "yanolja.com",
+    cat: "hotel",
+    catLabel: "호텔·숙박",
+    rating: 4.3,
+    reviewCount: 412000,
+    priceMin: 39000,
+    priceUnit: "1박부터",
+    popular: true,
+    tagline: "국내 숙소 물량 1위, 예약 속도가 가장 빠름",
+    specialty: "국내 숙소 최다 물량 · 초고속 예약",
+    highlights: ["모텔·펜션·게스트하우스까지 국내 최다 물량","상시 할인쿠폰·슈퍼세일 프로모션"],
+    caution: "해외 숙소는 약함, 저가 숙소 간 품질 편차가 큼",
+    feeNote: "표시가에 세금 포함, 별도 수수료 거의 없음",
+    cancelNote: "숙소별 상이 · 상당수 무료취소 가능(일부 특가 제외)",
+    keywords: ["국내","물량","빠른예약","빠른","쿠폰","할인","당일예약"],
+    url: "https://example.com/redirect/yanolja?ref=tripcompare"
+  },
+  {
+    name: "여기어때",
+    scope: "domestic",
+    badgeColor: "#FF3D71",
+    badgeInitial: "여",
+    logoDomain: "yeogieotdae.com",
+    cat: "hotel",
+    catLabel: "호텔·숙박",
+    rating: 4.2,
+    reviewCount: 265000,
+    priceMin: 42000,
+    priceUnit: "1박부터",
+    popular: false,
+    tagline: "실사용자 리뷰 기반 검색, 지도로 위치 비교 편리",
+    specialty: "실사용자 리뷰·지도 기반 검색 전문",
+    highlights: ["풍부한 실사용자 리뷰로 숙소 비교 용이","지도 기반 검색·이벤트 다수"],
+    caution: "야놀자 대비 응대 속도 느림, AI 작성 리뷰 필터링 미흡",
+    feeNote: "표시가에 세금 포함, 별도 수수료 거의 없음",
+    cancelNote: "숙소별 상이 · 리뷰에서 취소 후기 확인 권장",
+    keywords: ["리뷰","후기","지도","위치","이벤트","비교"],
+    url: "https://example.com/redirect/yeogieotdae?ref=tripcompare"
+  },
+  {
+    name: "아고다",
+    scope: "international",
+    badgeColor: "#8B2E3B",
+    badgeInitial: "AG",
+    logoDomain: "agoda.com",
+    cat: "hotel",
+    catLabel: "호텔·숙박",
+    rating: 4.1,
+    reviewCount: 890000,
+    priceMin: 35000,
+    priceUnit: "1박부터",
+    popular: true,
+    tagline: "아시아 숙소 특가에 강함",
+    specialty: "아시아 리조트·호텔 특가 전문",
+    highlights: ["아시아 리조트·호텔 특가 다수"],
+    caution: "세금·서비스료 최대 20% 별도, 취소불가 특가 많고 해외카드 환전수수료 발생",
+    feeNote: "세금·서비스료 최대 20% 별도 + 해외카드 환전수수료 1~2%",
+    cancelNote: "취소불가 특가 비중 높음 · 예약 전 조건 꼭 확인",
+    keywords: ["아시아","특가","리조트","저렴","최저가"],
+    url: "https://example.com/redirect/agoda?ref=tripcompare"
+  },
+  {
+    name: "부킹닷컴",
+    scope: "international",
+    badgeColor: "#003580",
+    badgeInitial: "B.",
+    logoDomain: "booking.com",
+    cat: "hotel",
+    catLabel: "호텔·숙박",
+    rating: 4.3,
+    reviewCount: 1200000,
+    priceMin: 48000,
+    priceUnit: "1박부터",
+    popular: false,
+    tagline: "무료취소 옵션이 가장 촘촘한 숙소 예약처",
+    specialty: "무료취소 옵션 가장 촘촘함",
+    highlights: ["세밀한 무료취소 필터","실숙박 후기 기반 리뷰 신뢰도 높음"],
+    caution: "무료취소 요금이 비환불보다 비쌈, 취소 기한 확인 필요",
+    feeNote: "국가별 표시가 정책 상이, 무료취소 요금제가 비환불보다 다소 비쌈",
+    cancelNote: "무료취소 필터링 가장 촘촘 · 취소 기한을 직접 확인해야 함",
+    keywords: ["무료취소","취소","환불","일정변경","신뢰"],
+    url: "https://example.com/redirect/bookingcom?ref=tripcompare"
+  },
+  {
+    name: "스카이스캐너",
+    scope: "both",
+    badgeColor: "#0770E3",
+    badgeInitial: "SS",
+    logoDomain: "skyscanner.net",
+    cat: "tour",
+    catLabel: "투어·종합",
+    rating: 4.4,
+    reviewCount: 158000,
+    priceMin: 89000,
+    priceUnit: "왕복부터",
+    popular: true,
+    tagline: "항공권 초저가, 한 번에 비교",
+    specialty: "항공권 가격 동시 비교 전문",
+    highlights: ["수백 개 항공사·여행사 동시 비교","'어디든지 검색', 가격 알림 기능"],
+    caution: "검색가와 실결제가 다를 수 있음, 좌석 소진 오류 있어 최종 결제는 항공사 사이트 권장",
+    feeNote: "검색가와 최종 결제가 다를 수 있음 · 카드사·좌석에 따라 변동",
+    cancelNote: "항공사 정책을 그대로 따름 · 항공사 사이트에서 재확인 필요",
+    keywords: ["항공권","비행기","가격비교","알림","최저가"],
+    url: "https://example.com/redirect/skyscanner?ref=tripcompare"
+  },
+  {
+    name: "트립닷컴",
+    scope: "international",
+    badgeColor: "#2681FF",
+    badgeInitial: "TC",
+    logoDomain: "trip.com",
+    cat: "tour",
+    catLabel: "투어·종합",
+    rating: 4.0,
+    reviewCount: 320000,
+    priceMin: 129000,
+    priceUnit: "1인부터",
+    popular: false,
+    tagline: "항공+호텔+기차까지 한번에 예약",
+    specialty: "항공·호텔·기차 원스톱 통합예약",
+    highlights: ["원스톱 통합 예약","24시간 다국어 고객센터 빠른 연결, 리뷰 작성 시 트립코인 적립"],
+    caution: "국제 브랜드 특성상 환불·변경 정책이 까다로움, 성수기 상담 지연",
+    feeNote: "국제 브랜드 특성상 환율·결제 수수료 발생 가능",
+    cancelNote: "환불·변경 정책이 국내 서비스보다 까다로움, 상품별 상이",
+    keywords: ["통합예약","올인원","고객센터","상담","24시간","트립코인"],
+    url: "https://example.com/redirect/tripcom?ref=tripcompare"
+  },
+  {
+    name: "익스피디아",
+    scope: "international",
+    badgeColor: "#FFC72C",
+    badgeInitial: "EX",
+    badgeTextColor: "#3a2c00",
+    logoDomain: "expedia.com",
+    cat: "tour",
+    catLabel: "투어·종합",
+    rating: 4.0,
+    reviewCount: 275000,
+    priceMin: 145000,
+    priceUnit: "1인부터",
+    popular: false,
+    tagline: "묶어서 예약할수록 커지는 번들 할인",
+    specialty: "항공+숙소 번들 할인·포인트 적립",
+    highlights: ["항공+숙소 묶음 예약 시 할인폭 확대","리워드 포인트 적립·카드 제휴 할인"],
+    caution: "국내 이용후기가 상대적으로 적음, 표시가에 세금 별도",
+    feeNote: "표시가에 세금 별도로 붙는 경우 있음, 번들 예약 시 할인 확대",
+    cancelNote: "상품별 상이, 번들 예약 시 개별 취소 제한될 수 있음",
+    keywords: ["번들","묶음","포인트","카드할인","리워드","적립"],
+    url: "https://example.com/redirect/expedia?ref=tripcompare"
+  },
+  {
+    name: "마이리얼트립",
+    scope: "both",
+    badgeColor: "#1E88E5",
+    badgeInitial: "MR",
+    logoDomain: "myrealtrip.com",
+    cat: "tour",
+    catLabel: "투어·종합",
+    rating: 4.4,
+    reviewCount: 198000,
+    priceMin: 59000,
+    priceUnit: "1인부터",
+    popular: false,
+    tagline: "현지인 가이드 투어·액티비티 + AI 일정 관리",
+    specialty: "현지 투어·액티비티 + AI 일정 관리",
+    highlights: ["현지인 가이드 투어·액티비티 특화 상품","확실한 한국어 고객지원","챗GPT 연동 AI 여행플래너로 일정 자동 구성(앱 전용)"],
+    caution: "해외 숙소·투어 상품 수는 아고다·트립닷컴 대비 적음, AI 플래너는 앱에서만 지원",
+    feeNote: "원화 결제 기준 표시가에 수수료 포함, 추가 수수료 거의 없음",
+    cancelNote: "상품별 상이 · 액티비티 다수가 출발 24시간 전까지 무료취소",
+    keywords: ["투어","액티비티","체험","한국어","현지인","가이드","일정","일정관리","여행플래너","AI일정"],
+    url: "https://example.com/redirect/myrealtrip?ref=tripcompare"
+  },
+  {
+    name: "스카이로밍",
+    scope: "international",
+    badgeColor: "#0091D5",
+    badgeInitial: "SR",
+    cat: "esim",
+    catLabel: "유심·로밍",
+    rating: 4.5,
+    reviewCount: 82000,
+    priceMin: 5900,
+    priceUnit: "1일부터",
+    popular: true,
+    tagline: "공항 수령 편리, 전세계 데이터 유심 1위",
+    specialty: "공항 수령 편리, 전세계 커버리지",
+    highlights: ["전국 공항 수령·반납","실시간 고객센터"],
+    caution: "성수기엔 재고 조기 마감될 수 있음",
+    feeNote: "표시가에 부가세 포함, 별도 수수료 없음",
+    cancelNote: "출국 전 미개통 상태면 전액 환불 가능",
+    keywords: ["공항수령","실시간","고객센터","편리"],
+    url: "https://example.com/redirect/skyroaming?ref=tripcompare"
+  },
+  {
+    name: "로밍에그",
+    scope: "international",
+    badgeColor: "#FF9F1C",
+    badgeInitial: "RE",
+    cat: "esim",
+    catLabel: "유심·로밍",
+    rating: 4.3,
+    reviewCount: 65000,
+    priceMin: 4900,
+    priceUnit: "1일부터",
+    popular: false,
+    tagline: "포켓와이파이·유심 동시 취급, 최저가 프로모션 잦음",
+    specialty: "포켓와이파이·유심 동시 취급",
+    highlights: ["기기+유심 옵션 다양","쿠폰 할인 빈번"],
+    caution: "일부 국가는 수령 지점이 제한적",
+    feeNote: "표시가에 부가세 포함, 쿠폰 할인이 잦은 편",
+    cancelNote: "수령 전 취소 시 전액 환불, 사용 개시 후 환불 불가",
+    keywords: ["와이파이","포켓","쿠폰","할인","다양"],
+    url: "https://example.com/redirect/romingegg?ref=tripcompare"
+  },
+  {
+    name: "도시락 로밍",
+    scope: "international",
+    badgeColor: "#E4002B",
+    badgeInitial: "DR",
+    cat: "esim",
+    catLabel: "유심·로밍",
+    rating: 4.2,
+    reviewCount: 54000,
+    priceMin: 6500,
+    priceUnit: "1일부터",
+    popular: false,
+    tagline: "통신사 계열 안정성, 속도 저하 없는 무제한 요금제",
+    specialty: "통신사 직영 안정성·무제한 요금제",
+    highlights: ["통신사 직영 네트워크","무제한 요금제 다양"],
+    caution: "저가형 유심보다 요금이 다소 높음",
+    feeNote: "표시가에 부가세 포함, 통신사 직영 요금제라 추가 수수료 없음",
+    cancelNote: "개통 전 취소 시 전액 환불, 개통 후 환불 불가",
+    keywords: ["통신사","무제한","속도","안정성"],
+    url: "https://example.com/redirect/dosirak?ref=tripcompare"
+  },
+  {
+    name: "트래블유심",
+    scope: "international",
+    badgeColor: "#00A676",
+    badgeInitial: "TS",
+    cat: "esim",
+    catLabel: "유심·로밍",
+    rating: 4.4,
+    reviewCount: 41000,
+    priceMin: 3900,
+    priceUnit: "1일부터",
+    popular: false,
+    tagline: "심플한 국가별 최저가 유심 전문",
+    specialty: "국가별 최저가 유심 비교 전문",
+    highlights: ["국가별 최저가 비교 제공","eSIM 즉시 발급"],
+    caution: "일부 구형 단말기는 eSIM 미지원",
+    feeNote: "표시가에 부가세 포함, 가장 저렴한 국가별 최저가 기준",
+    cancelNote: "즉시발급 특성상 발급 후 환불 제한적, 발급 전 취소는 가능",
+    keywords: ["최저가","즉시발급","간편","저렴"],
+    url: "https://example.com/redirect/travelusim?ref=tripcompare"
+  }
+];
+
+const CAT_LABELS = { hotel:"호텔·숙박", tour:"투어·종합", esim:"유심·로밍", all:"전체" };
+const SCOPE_LABELS = { domestic:"국내", international:"해외", both:"국내+해외" };
+
+/* ============================================================
+   구글 시트 연동
+   1) 구글 시트에 아래 헤더로 컬럼을 만드세요 (순서는 상관없음):
+      name, cat, scope, rating, reviewCount, priceMin, priceUnit,
+      tagline, highlights, caution, url, popular, badgeColor, badgeInitial, keywords,
+      specialty(선택), feeNote(선택), cancelNote(선택), logoDomain(선택), photoUrl(선택)
+      - cat: 호텔·숙박 / 투어·종합 / 유심·로밍 중 하나
+      - scope: 국내 / 해외 / 국내+해외 중 하나
+      - highlights: 강점 여러 개는 " | " (파이프)로 구분해서 한 셀에 입력
+      - keywords(선택): 비교 페이지에서 검색어 매칭에 쓸 키워드, " | "로 구분
+        (예: 무료취소 | 취소 | 환불 — 사용자가 이 중 하나라도 검색하면 이 서비스가 상위로 올라와요)
+      - specialty(선택): 카드 상단·상세 비교표에 노출되는 한 줄 "특화 포인트" 문구
+        (예: 국내 숙소 최다 물량 · 초고속 예약 — 비워두면 tagline을 그대로 사용해요)
+      - feeNote(선택): 상세 비교표의 "실결제가(수수료)" 행에 들어갈 한 줄 설명
+        (예: 표시가에 세금 포함, 별도 수수료 거의 없음)
+      - cancelNote(선택): 상세 비교표의 "취소 조건" 행에 들어갈 한 줄 설명
+        (예: 무료취소 필터링 가장 촘촘 · 취소 기한 직접 확인 필요)
+      - feeNote/cancelNote를 비워두면 상세 비교표에 "-"로 표시돼요.
+      - logoDomain(선택): 실제 서비스 로고를 자동으로 불러올 도메인 (예: yanolja.com)
+        비워두면(또는 로고를 못 불러오면) badgeColor/badgeInitial 배지로 자동 대체돼요.
+      - photoUrl(선택): 카드 상단에 들어갈 사진 이미지 URL. 비워두면 카테고리별 기본 사진(스톡 이미지)이 자동으로 들어가요.
+      - popular: TRUE 또는 FALSE (인기 배지 여부)
+      - badgeColor / badgeInitial: 비워두면 기본값 사용
+      - priceMin/priceUnit: 사이트 화면에는 더 이상 표시하지 않지만, 컬럼 자체는 남겨둬도 무방해요.
+   2) 파일 > 공유 > 웹에 게시(Publish to web) > 이 시트 선택 > CSV 형식으로 게시
+      → 발급된 링크를 아래 SHEET_CSV_URL에 붙여넣으세요.
+      (예: https://docs.google.com/spreadsheets/d/e/2PACX-xxxx/pub?output=csv)
+   3) URL을 비워두면 이 파일에 저장된 기본 데이터로만 동작합니다.
+   4) 이 방식은 정적 파일을 실제 웹 서버(깃허브 페이지 등 https)에 올렸을 때
+      가장 안정적으로 동작해요. 컴퓨터에서 파일을 더블클릭해 여는 경우
+      브라우저 정책상 구글 시트 요청이 막힐 수 있습니다.
+============================================================ */
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSjjqTSP4zsN7IvJ0A_557Z5u74hL54ZiGdmFeYNGB6tpWdrxikd8TU79WgUzGoDdkizH-AXN-diWon/pub?gid=1855737875&single=true&output=csv";
+
+function parseCSV(text){
+  const rows = [];
+  let row = [], field = "", inQuotes = false;
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    if(inQuotes){
+      if(c === '"'){
+        if(text[i+1] === '"'){ field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
+    } else {
+      if(c === '"') inQuotes = true;
+      else if(c === ","){ row.push(field); field = ""; }
+      else if(c === "\n"){ row.push(field); rows.push(row); row = []; field = ""; }
+      else if(c === "\r"){ /* skip */ }
+      else field += c;
+    }
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  return rows.filter(r => r.length > 1 || (r[0] || "").trim() !== "");
+}
+
+const CAT_LABEL_TO_KEY = { "호텔·숙박":"hotel", "투어·종합":"tour", "유심·로밍":"esim", "hotel":"hotel", "tour":"tour", "esim":"esim" };
+const SCOPE_LABEL_TO_KEY = { "국내":"domestic", "해외":"international", "국내+해외":"both", "domestic":"domestic", "international":"international", "both":"both" };
+
+function rowsToServices(rows){
+  if(!rows.length) return null;
+  const header = rows[0].map(h => h.trim().toLowerCase());
+  const idx = (name) => header.indexOf(name);
+  const iName = idx("name"), iCat = idx("cat"), iScope = idx("scope"), iRating = idx("rating"),
+    iReview = idx("reviewcount"), iPrice = idx("pricemin"), iUnit = idx("priceunit"),
+    iTagline = idx("tagline"), iHighlights = idx("highlights"), iCaution = idx("caution"),
+    iUrl = idx("url"), iPopular = idx("popular"), iColor = idx("badgecolor"), iInitial = idx("badgeinitial"),
+    iKeywords = idx("keywords"), iFeeNote = idx("feenote"), iCancelNote = idx("cancelnote"), iSpecialty = idx("specialty"), iLogoDomain = idx("logodomain"), iPhotoUrl = idx("photourl");
+  if(iName === -1 || iUrl === -1) return null;
+
+  return rows.slice(1)
+    .filter(r => (r[iName] || "").trim())
+    .map(r => {
+      const name = r[iName].trim();
+      const catRaw = (r[iCat] || "").trim();
+      const scopeRaw = (r[iScope] || "").trim();
+      const catKey = CAT_LABEL_TO_KEY[catRaw] || "hotel";
+      return {
+        name,
+        scope: SCOPE_LABEL_TO_KEY[scopeRaw] || "both",
+        badgeColor: (r[iColor] || "").trim() || "#3D5AFE",
+        badgeInitial: (r[iInitial] || "").trim() || name.slice(0, 2),
+        cat: catKey,
+        catLabel: CAT_LABELS[catKey],
+        rating: parseFloat(r[iRating]) || 4.0,
+        reviewCount: parseInt(r[iReview], 10) || 0,
+        priceMin: parseInt(r[iPrice], 10) || 0,
+        priceUnit: (r[iUnit] || "").trim() || "1박부터",
+        popular: /^(true|1|o|예|y)$/i.test((r[iPopular] || "").trim()),
+        tagline: (r[iTagline] || "").trim(),
+        specialty: (iSpecialty === -1 ? "" : (r[iSpecialty] || "").trim()) || (r[iTagline] || "").trim(),
+        highlights: (r[iHighlights] || "").split("|").map(t => t.trim()).filter(Boolean),
+        caution: (r[iCaution] || "").trim(),
+        keywords: iKeywords === -1 ? [] : (r[iKeywords] || "").split("|").map(t => t.trim()).filter(Boolean),
+        feeNote: iFeeNote === -1 ? "" : (r[iFeeNote] || "").trim(),
+        cancelNote: iCancelNote === -1 ? "" : (r[iCancelNote] || "").trim(),
+        logoDomain: iLogoDomain === -1 ? "" : (r[iLogoDomain] || "").trim(),
+        photoUrl: iPhotoUrl === -1 ? "" : (r[iPhotoUrl] || "").trim(),
+        url: (r[iUrl] || "").trim()
+      };
+    });
+}
+
+async function syncFromSheet(){
+  if(!SHEET_CSV_URL) return;
+  try{
+    const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
+    if(!res.ok) throw new Error("시트 응답 오류: " + res.status);
+    const text = await res.text();
+    const parsed = rowsToServices(parseCSV(text));
+    if(parsed && parsed.length){
+      services.length = 0;
+      services.push(...parsed);
+      compareSet = new Set([...compareSet].filter(name => services.some(s => s.name === name)));
+      render();
+      if(comparePage.style.display === "block") renderCompareModal();
+    }
+  }catch(e){
+    console.warn("구글 시트 동기화에 실패해 기본 데이터를 사용합니다.", e);
+  }
+}
+/* ============================================================ */
+
+function formatReviews(n){
+  if(n >= 10000) return Math.round(n/10000) + "만";
+  return n.toLocaleString("ko-KR");
+}
+
+const results = document.getElementById("results");
+const resultsTitle = document.getElementById("resultsTitle");
+const resultsSub = document.getElementById("resultsSub");
+const compareBar = document.getElementById("compareBar");
+const compareCount = document.getElementById("compareCount");
+const compareTable = document.getElementById("compareTable");
+const comparePicker = document.getElementById("comparePicker");
+const compareTray = document.getElementById("compareTray");
+const compareQuery = document.getElementById("compareQuery");
+const scoreResults = document.getElementById("scoreResults");
+const compareInsight = document.getElementById("compareInsight");
+const detailTableLabel = document.getElementById("detailTableLabel");
+const sortBar = document.getElementById("sortBar");
+const catTabBar = document.getElementById("catTabBar");
+const compareCatTabBar = document.getElementById("compareCatTabBar");
+const mainView = document.getElementById("mainView");
+const comparePage = document.getElementById("comparePage");
+const comparePageSub = document.getElementById("comparePageSub");
+const backToMainBtn = document.getElementById("backToMainBtn");
+
+let compareSet = new Set();
+let currentSort = "popular";
+let currentCategory = "all";
+let compareCategory = "all";
+
+const CHECK_ICON = `<svg class="ic" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg>`;
+const WARN_ICON = `<svg class="ic" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>`;
+const FIRE_ICON = `<svg class="ic fire-ic" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2c1 3-3 4-3 8a3 3 0 0 0 6 0c0-1-1-2-1-3 2 1 3 3 3 5a5 5 0 0 1-10 0c0-5 4-6 5-10Z"/></svg>`;
+const ARROW_ICON = `<svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`;
+const STAR_ICON = `★`;
+
+// 카테고리별 기본 배경 사진 (임시 스톡 이미지 — 구글 시트의 photoUrl 컬럼으로 서비스별 교체 가능)
+const CATEGORY_PHOTOS = {
+  hotel: "https://picsum.photos/id/1039/1400/900",
+  tour: "https://picsum.photos/id/1015/1400/900",
+  esim: "https://picsum.photos/id/1067/1400/900"
+};
+
+function badge(s, sm){
+  const cls = sm ? "app-badge sm" : "app-badge";
+  const color = s.badgeTextColor || "#fff";
+  const fallback = `<div class="${cls}" style="background:${s.badgeColor};color:${color};${s.logoDomain ? "display:none;" : ""}">${s.badgeInitial}</div>`;
+  if(!s.logoDomain) return fallback;
+  const imgCls = sm ? "app-logo-img sm" : "app-logo-img";
+  return `<span class="app-logo-wrap"><img class="${imgCls}" src="https://logo.clearbit.com/${s.logoDomain}?size=128" alt="${s.name} 로고" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">${fallback}</span>`;
+}
+
+function sortServices(list){
+  const sorted = list.slice();
+  if(currentSort === "rating"){
+    sorted.sort((a,b) => b.rating - a.rating);
+  } else {
+    sorted.sort((a,b) => (b.popular?1:0) - (a.popular?1:0) || b.rating - a.rating);
+  }
+  return sorted;
+}
+
+const SPECIALTY_ICON = `<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.6" fill="currentColor"/></svg>`;
+
+function recCardHTML(s){
+  const checked = compareSet.has(s.name) ? "checked" : "";
+  const photo = s.photoUrl || CATEGORY_PHOTOS[s.cat] || CATEGORY_PHOTOS.hotel;
+  return `
+    <div class="rec-card">
+      <div class="rec-photo" style="background-image:url('${photo}');">
+        ${s.popular ? `<span class="ribbon">${FIRE_ICON}인기 많이 찾는 서비스</span>` : ""}
+      </div>
+      <div class="rec-card-body">
+        <div class="rec-top">
+          ${badge(s,false)}
+          <div>
+            <p class="rec-name">${s.name}</p>
+            <div class="rec-rating">${STAR_ICON} ${s.rating.toFixed(1)} <span>· 리뷰 ${formatReviews(s.reviewCount)}개 · ${s.catLabel}</span></div>
+          </div>
+        </div>
+        <div class="specialty-pill">${SPECIALTY_ICON}${s.specialty}</div>
+        <p class="rec-tagline">${s.tagline}</p>
+        <p class="card-section-label">이런 점이 좋아요</p>
+        <ul class="highlight-list">
+          ${s.highlights.map(h => `<li>${CHECK_ICON}${h}</li>`).join("")}
+        </ul>
+        <p class="card-section-label">이건 미리 확인하세요</p>
+        <div class="caution-line">${WARN_ICON}${s.caution}</div>
+        <div class="rec-actions">
+          <a class="book-btn" href="${s.url}" target="_blank" rel="noopener sponsored">예약하러가기 ${ARROW_ICON}</a>
+          <label class="compare-check">
+            <input type="checkbox" data-name="${s.name}" ${checked}> 비교함
+          </label>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function byCategory(list){
+  if(currentCategory === "all") return list;
+  return list.filter(s => s.cat === currentCategory);
+}
+
+function renderPopularOverview(){
+  const catLabel = currentCategory === "all" ? "전체" : CAT_LABELS[currentCategory];
+  resultsTitle.textContent = currentCategory === "all" ? "전체 서비스 비교" : `${catLabel} 비교`;
+  resultsSub.textContent = "인기·가격·평점 기준으로 서비스를 비교해보세요.";
+  const filtered = sortServices(byCategory(services));
+  if(filtered.length===0){
+    results.innerHTML = `<div class="no-result">해당 카테고리에 서비스가 없어요.</div>`;
+    return;
+  }
+  results.innerHTML = `<div class="cat-block">${filtered.map(recCardHTML).join("")}</div>`;
+}
+
+function render(){
+  renderPopularOverview();
+  updateCompareBar();
+}
+
+function updateCompareBar(){
+  const n = compareSet.size;
+  compareCount.textContent = `${n}개 선택됨`;
+  compareBar.classList.toggle("show", n > 0);
+}
+
+// ---- category tabs ----
+catTabBar.addEventListener("click", (e) => {
+  const btn = e.target.closest(".cat-tab");
+  if(!btn) return;
+  catTabBar.querySelectorAll(".cat-tab").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  currentCategory = btn.dataset.cat;
+  render();
+});
+
+// ---- sort bar ----
+sortBar.addEventListener("click", (e) => {
+  const btn = e.target.closest(".sort-chip");
+  if(!btn) return;
+  sortBar.querySelectorAll(".sort-chip").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  currentSort = btn.dataset.sort;
+  render();
+});
+
+// compare checkbox delegation
+results.addEventListener("change", (e) => {
+  if(e.target.matches('input[type="checkbox"][data-name]')){
+    const name = e.target.dataset.name;
+    if(e.target.checked) compareSet.add(name);
+    else compareSet.delete(name);
+    updateCompareBar();
+  }
+});
+
+// ---- compare modal: scoring ----
+// 입력한 키워드와의 관련성이 점수를 좌우하도록 설계했어요. 평점·가격·리뷰수는
+// "관련성이 같을 때"만 참고하는 보조 지표라서, 서비스마다 강점 키워드가 다르면
+// 검색어에 따라 1위가 서로 다르게 나옵니다(한 서비스로 몰리지 않도록).
+function computeScores(list, query){
+  const ratings = list.map(s => s.rating);
+  const reviews = list.map(s => s.reviewCount);
+  const minR = Math.min(...ratings), maxR = Math.max(...ratings);
+  const minV = Math.min(...reviews), maxV = Math.max(...reviews);
+
+  const terms = query ? query.toLowerCase().split(/[\s,·\/]+/).filter(Boolean) : [];
+
+  return list.map(s => {
+    // 가격은 선택 조건에 따라 달라지므로 점수에서 제외, 평점/리뷰수만 보조 지표로 사용 (최대 22)
+    const ratingScore = maxR > minR ? ((s.rating - minR) / (maxR - minR)) * 12 : 9;
+    const reviewScore = maxV > minV ? ((s.reviewCount - minV) / (maxV - minV)) * 10 : 7;
+    let score = 18 + ratingScore + reviewScore; // 기본 18 + 최대 22 = 40 (보조 지표만으로는 크게 안 벌어짐)
+
+    let reason = null;
+    if(terms.length){
+      const positiveText = (s.tagline + " " + s.highlights.join(" ") + " " + (s.keywords || []).join(" ")).toLowerCase();
+      const cautionText = s.caution.toLowerCase();
+      terms.forEach(t => {
+        if(positiveText.includes(t)){
+          score += 35; // 키워드 적중 시 큰 폭으로 상승 → 검색어별로 1위가 갈림
+          if(!reason){
+            const hit = s.highlights.find(h => h.toLowerCase().includes(t))
+              || (s.keywords || []).find(k => k.toLowerCase().includes(t));
+            reason = hit || s.tagline;
+          }
+        }
+        if(cautionText.includes(t)){
+          score -= 25;
+        }
+      });
+    }
+    score = Math.max(5, Math.min(99, Math.round(score)));
+    if(!reason) reason = s.tagline;
+    return Object.assign({}, s, { score, reason });
+  });
+}
+
+function buildCompareInsight(list){
+  if(list.length < 2) return "";
+  const commonFacts = [];
+  const diffFacts = [];
+
+  const cats = [...new Set(list.map(s => s.cat))];
+  if(cats.length === 1){
+    commonFacts.push(`선택한 ${list.length}개 서비스 모두 <b>${CAT_LABELS[cats[0]]}</b> 카테고리예요.`);
+  } else {
+    diffFacts.push(`카테고리가 서로 달라요 (${cats.map(c => CAT_LABELS[c]).join(", ")}) — 성격이 다른 서비스를 비교하고 있어요.`);
+  }
+
+  const scopes = [...new Set(list.map(s => s.scope))];
+  if(scopes.length === 1){
+    commonFacts.push(`모두 <b>${SCOPE_LABELS[scopes[0]]}</b> 여행에서 이용할 수 있어요.`);
+  } else {
+    diffFacts.push(`이용 범위가 달라요 (${scopes.map(sc => SCOPE_LABELS[sc]).join(" vs ")}).`);
+  }
+
+  if(list.every(s => s.popular)){
+    commonFacts.push("모두 인기 많이 찾는 서비스예요.");
+  }
+
+  const ratings = list.map(s => s.rating);
+  const maxR = Math.max(...ratings), minR = Math.min(...ratings);
+  const bestS = list.find(s => s.rating === maxR);
+  const worstS = list.find(s => s.rating === minR);
+  if(maxR - minR < 0.15){
+    commonFacts.push(`평점이 거의 비슷해요 (모두 ★${minR.toFixed(1)}~${maxR.toFixed(1)}).`);
+  } else {
+    diffFacts.push(`평점 차이가 있어요 — <b>${bestS.name}</b>(★${maxR.toFixed(1)})이 <b>${worstS.name}</b>(★${minR.toFixed(1)})보다 높아요.`);
+  }
+
+  diffFacts.push(list.map(s => `<b>${s.name}</b>은 "${s.specialty}"`).join(", ") + "에 특화되어 있어요.");
+
+  const feeNotes = new Set(list.map(s => s.feeNote || ""));
+  if(feeNotes.size > 1){
+    diffFacts.push("실결제가(수수료) 조건이 서비스마다 달라요 — 상세 비교표에서 꼭 확인하세요.");
+  }
+  const cancelNotes = new Set(list.map(s => s.cancelNote || ""));
+  if(cancelNotes.size > 1){
+    diffFacts.push("취소 조건도 서비스마다 달라요 — 일정이 바뀔 수 있다면 꼭 비교해보세요.");
+  }
+
+  if(!commonFacts.length) commonFacts.push("카테고리·이용범위 외에는 뚜렷한 공통점이 적어요 — 서로 다른 강점을 가진 서비스들이에요.");
+
+  return `
+    <div class="compare-insight">
+      <div class="insight-box common">
+        <p class="insight-title">${CHECK_ICON}공통점</p>
+        <ul class="insight-list">${commonFacts.map(f => `<li>${f}</li>`).join("")}</ul>
+      </div>
+      <div class="insight-box diff">
+        <p class="insight-title">${WARN_ICON}차이점</p>
+        <ul class="insight-list">${diffFacts.map(f => `<li>${f}</li>`).join("")}</ul>
+      </div>
+    </div>
+  `;
+}
+
+function renderCompareModal(){
+  const selected = services.filter(s => compareSet.has(s.name));
+
+  compareTray.innerHTML = selected.length
+    ? selected.map(s => `<div class="tray-chip">${badge(s,true)}<span>${s.name}</span><button type="button" class="tray-remove" data-name="${s.name}">×</button></div>`).join("")
+    : `<p class="tray-empty">아직 선택한 사이트가 없어요. 위에서 골라보세요.</p>`;
+
+  const pickerList = compareCategory === "all" ? services : services.filter(s => s.cat === compareCategory);
+  comparePicker.innerHTML = pickerList.map(s => {
+    const active = compareSet.has(s.name) ? "active" : "";
+    return `<button type="button" class="picker-chip ${active}" data-name="${s.name}">${badge(s,true)}<span>${s.name}</span></button>`;
+  }).join("");
+
+  if(selected.length === 0){
+    scoreResults.innerHTML = "";
+    compareInsight.innerHTML = "";
+    compareTable.innerHTML = "";
+    detailTableLabel.style.display = "none";
+    return;
+  }
+
+  compareInsight.innerHTML = buildCompareInsight(selected);
+
+  const query = compareQuery.value.trim();
+
+  if(!query){
+    scoreResults.innerHTML = `<p class="score-note score-hint">어떤 걸 비교하고 싶으신지 위에 입력하시면, 그 기준으로 적합도 점수를 보여드려요.</p>`;
+  } else {
+    const scored = computeScores(selected, query).sort((a,b) => b.score - a.score);
+    scoreResults.innerHTML = `<p class="score-note">아래 적합도 점수는 선택한 서비스들끼리 평점·가격·리뷰수를 상대 비교하고, 입력한 키워드를 가감점으로 반영한 참고용 지표예요. 공식 순위가 아니에요.</p>` +
+      scored.map((s,i) => `
+      <div class="score-card">
+        <div class="score-top">
+          ${badge(s,true)}
+          <span class="score-name">${s.name} ${i===0 ? '<span class="best-tag">가장 적합</span>' : ""}</span>
+          <span class="score-pct">${s.score}%</span>
+        </div>
+        <div class="score-bar"><div class="score-fill" style="width:${s.score}%"></div></div>
+        <p class="score-reason">“${query}” 기준 — ${s.reason}</p>
+      </div>
+    `).join("");
+  }
+
+  detailTableLabel.style.display = "block";
+
+  const ICON_SPECIALTY = `<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.6" fill="currentColor"/></svg>`;
+  const ICON_RATING = `<svg class="ic" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2.5l2.9 6.6 7.1.7-5.4 4.8 1.6 7-6.2-3.7-6.2 3.7 1.6-7L2 9.8l7.1-.7Z"/></svg>`;
+  const ICON_FEE = `<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9c0-1.4 1.2-2.3 2.6-2.3 1.6 0 2.6 1 2.4 2.1-.2 1.1-1.4 1.5-2.5 2-1.2.6-2.4 1.3-2.4 2.7 0 1.3 1.1 2.3 2.6 2.3 1.4 0 2.5-.8 2.6-2"/><path d="M12 5.5v1.2M12 17.3v1.2"/></svg>`;
+  const ICON_CANCEL = `<svg class="ic" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>`;
+  const ICON_CATEGORY = `<svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>`;
+  const ICON_BOOK = `<svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`;
+
+  const maxRating = Math.max(...selected.map(s => s.rating));
+
+  compareTable.innerHTML = `
+    <tr>
+      <th>서비스</th>
+      ${selected.map(s => `<th>${badge(s,true)}<br>${s.name}</th>`).join("")}
+    </tr>
+    <tr>
+      <td><span class="row-label">${ICON_SPECIALTY}특화 포인트</span></td>
+      ${selected.map(s => `<td class="specialty-cell">${s.specialty}</td>`).join("")}
+    </tr>
+    <tr>
+      <td><span class="row-label">${ICON_RATING}평점 (진짜 리뷰 기준)</span></td>
+      ${selected.map(s => {
+        const isBest = s.rating === maxRating;
+        const pct = Math.round((s.rating / 5) * 100);
+        return `<td class="${isBest ? "best-rating-cell" : ""}">
+          <div class="rating-value">★ ${s.rating.toFixed(1)} ${isBest ? '<span class="mini-best">최고 평점</span>' : ""}</div>
+          <div class="rating-bar-wrap"><div class="rating-bar"><div class="rating-bar-fill" style="width:${pct}%"></div></div></div>
+          <div style="color:var(--sub);font-size:12px;margin-top:5px;">실사용 리뷰 ${formatReviews(s.reviewCount)}개</div>
+        </td>`;
+      }).join("")}
+    </tr>
+    <tr>
+      <td><span class="row-label">${ICON_FEE}실결제가 (수수료)</span></td>
+      ${selected.map(s => `<td>${s.feeNote || "-"}</td>`).join("")}
+    </tr>
+    <tr>
+      <td><span class="row-label">${ICON_CANCEL}취소 조건</span></td>
+      ${selected.map(s => `<td>${s.cancelNote || "-"}</td>`).join("")}
+    </tr>
+    <tr>
+      <td><span class="row-label">${ICON_CATEGORY}카테고리</span></td>
+      ${selected.map(s => `<td>${s.catLabel}</td>`).join("")}
+    </tr>
+    <tr>
+      <td><span class="row-label">${CHECK_ICON}장점</span></td>
+      ${selected.map(s => `<td>${s.highlights.map(h => `<div style="display:flex;gap:6px;align-items:flex-start;margin-bottom:5px;"><span style="color:var(--good);flex-shrink:0;">${CHECK_ICON}</span>${h}</div>`).join("")}</td>`).join("")}
+    </tr>
+    <tr>
+      <td><span class="row-label">${WARN_ICON}주의사항</span></td>
+      ${selected.map(s => `<td>${s.caution}</td>`).join("")}
+    </tr>
+    <tr>
+      <td><span class="row-label">${ICON_BOOK}예약</span></td>
+      ${selected.map(s => `<td><a class="mini-cta" href="${s.url}" target="_blank" rel="noopener sponsored">예약하러가기</a></td>`).join("")}
+    </tr>
+  `;
+}
+
+// ---- page navigation: main list <-> compare page ----
+function goToComparePage(){
+  compareCategory = currentCategory;
+  compareCatTabBar.querySelectorAll(".cat-tab").forEach(b => b.classList.toggle("active", b.dataset.cat === compareCategory));
+  const catLabel = compareCategory === "all" ? "전체" : CAT_LABELS[compareCategory];
+  comparePageSub.textContent = `${catLabel} 카테고리에서 비교하고 싶은 서비스를 체크하세요.`;
+  renderCompareModal();
+  mainView.style.display = "none";
+  comparePage.style.display = "block";
+  window.scrollTo({top:0, behavior:"instant"});
+}
+function goToMainView(){
+  comparePage.style.display = "none";
+  mainView.style.display = "block";
+  render();
+  window.scrollTo({top:0, behavior:"instant"});
+}
+
+document.getElementById("gotoCompareBtn").addEventListener("click", goToComparePage);
+document.getElementById("compareOpenBtn").addEventListener("click", goToComparePage);
+document.getElementById("compareOpenBtn2").addEventListener("click", goToComparePage);
+backToMainBtn.addEventListener("click", goToMainView);
+
+compareCatTabBar.addEventListener("click", (e) => {
+  const btn = e.target.closest(".cat-tab");
+  if(!btn) return;
+  compareCatTabBar.querySelectorAll(".cat-tab").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  compareCategory = btn.dataset.cat;
+  const catLabel = compareCategory === "all" ? "전체" : CAT_LABELS[compareCategory];
+  comparePageSub.textContent = `${catLabel} 카테고리에서 비교하고 싶은 서비스를 체크하세요.`;
+  renderCompareModal();
+});
+
+comparePicker.addEventListener("click", (e) => {
+  const chip = e.target.closest(".picker-chip");
+  if(!chip) return;
+  const name = chip.dataset.name;
+  if(compareSet.has(name)) compareSet.delete(name);
+  else compareSet.add(name);
+  renderCompareModal();
+  updateCompareBar();
+});
+
+compareTray.addEventListener("click", (e) => {
+  const btn = e.target.closest(".tray-remove");
+  if(!btn) return;
+  compareSet.delete(btn.dataset.name);
+  renderCompareModal();
+  updateCompareBar();
+});
+
+compareQuery.addEventListener("input", renderCompareModal);
+
+document.addEventListener("keydown", (e) => { if(e.key === "Escape" && comparePage.style.display === "block") goToMainView(); });
+
+// ---- policy modal (이용약관 / 개인정보처리방침 / 제휴 문의) ----
+const POLICY_CONTENT = {
+  terms: `
+    <h3>이용약관</h3>
+    <p class="policy-updated">시행일: 2026.07.08</p>
+    <h4>제1조 (목적)</h4>
+    <p>이 약관은 TripCompare(이하 "회사")가 제공하는 여행 서비스 비교 정보 사이트(이하 "서비스")의 이용과 관련하여 회사와 이용자의 권리·의무 및 책임사항을 정하는 것을 목적으로 합니다.</p>
+    <h4>제2조 (서비스의 성격)</h4>
+    <p>회사는 국내외 숙박·투어·유심/로밍 서비스의 가격, 평점, 리뷰 등 공개된 정보를 수집·비교하여 제공하는 정보 중개 사이트이며, 이용자와 각 제휴 서비스 간의 예약·결제·환불을 직접 처리하지 않습니다. 실제 예약은 각 서비스의 사이트 또는 앱에서 이루어지며, 계약의 당사자는 이용자와 해당 서비스입니다.</p>
+    <h4>제3조 (제휴 링크 및 수수료)</h4>
+    <p>서비스 내 "예약하러가기 / 보기 / 예약" 등 모든 버튼은 제휴 링크입니다. 이용자가 해당 링크를 통해 예약을 완료하는 경우 회사는 제휴사로부터 일정 수수료를 지급받을 수 있으며, 이는 이용자가 부담하는 가격에 영향을 주지 않습니다.</p>
+    <h4>제4조 (정보의 정확성)</h4>
+    <p>회사는 가격·평점·리뷰 수 등 정보를 정기적으로 갱신하기 위해 노력하지만 실시간 반영을 보장하지 않습니다. 최종 가격과 예약 조건은 반드시 해당 서비스에서 확인해야 합니다.</p>
+    <h4>제5조 (면책)</h4>
+    <p>회사는 이용자와 제휴사 사이에 발생한 거래 및 분쟁에 대해 직접적인 책임을 지지 않으며, 관련 문제는 해당 서비스의 고객센터를 통해 해결해야 합니다.</p>
+    <h4>제6조 (약관의 변경)</h4>
+    <p>회사는 관련 법령을 위반하지 않는 범위에서 본 약관을 개정할 수 있으며, 개정 시 사이트를 통해 공지합니다.</p>
+  `,
+  privacy: `
+    <h3>개인정보처리방침</h3>
+    <p class="policy-updated">시행일: 2026.07.08</p>
+    <h4>1. 수집하는 개인정보 항목</h4>
+    <p>본 사이트는 별도 회원가입 없이 이용할 수 있으며, 이용자가 직접 입력하지 않는 한 이름·연락처 등 개인정보를 수집하지 않습니다. 제휴 문의 시 남겨주신 이메일 주소는 문의 응대 목적으로만 사용됩니다.</p>
+    <h4>2. 자동 수집 정보</h4>
+    <p>서비스 이용 과정에서 접속 로그, 쿠키, 기기·브라우저 정보 등이 자동으로 수집될 수 있으며, 이는 서비스 개선 및 통계 분석 목적으로만 활용됩니다.</p>
+    <h4>3. 제3자 제공</h4>
+    <p>회사는 이용자가 직접 클릭한 제휴 링크를 통해 해당 서비스로 이동시킬 뿐, 개인정보를 별도로 제3자에게 제공하지 않습니다. 다만 클릭 시점의 방문 정보(리퍼러)는 제휴 정산을 위해 제휴사에 전달될 수 있습니다.</p>
+    <h4>4. 보유 및 이용 기간</h4>
+    <p>문의를 통해 수집된 이메일 등 정보는 문의 처리 완료 후 지체 없이 파기합니다.</p>
+    <h4>5. 이용자의 권리</h4>
+    <p>이용자는 언제든지 자신의 정보에 대한 열람·정정·삭제를 요청할 수 있습니다. 하단 제휴 문의 이메일로 연락 주시면 신속히 처리해 드립니다.</p>
+  `,
+  contact: `
+    <h3>제휴 문의</h3>
+    <p>TripCompare와의 제휴(신규 서비스 등록, 가격·리뷰 정보 수정, 광고·배너 제휴 등)를 원하시면 아래 이메일로 문의해 주세요.</p>
+    <ul>
+      <li>이메일: tripcompare0044@gmail.com</li>
+      <li>문의 시 서비스명, 카테고리(호텔·숙박 / 투어 / 유심), 담당자 연락처를 함께 남겨주시면 빠르게 답변드립니다.</li>
+    </ul>
+    <p class="policy-updated">평균 응답 소요: 영업일 기준 2~3일</p>
+  `
+};
+
+const policyModal = document.getElementById("policyModal");
+const policyModalBody = document.getElementById("policyModalBody");
+const policyModalClose = document.getElementById("policyModalClose");
+const policyModalBackdrop = document.getElementById("policyModalBackdrop");
+
+function openPolicyModal(key){
+  const html = POLICY_CONTENT[key];
+  if(!html) return;
+  policyModalBody.innerHTML = html;
+  policyModal.style.display = "flex";
+}
+function closePolicyModal(){
+  policyModal.style.display = "none";
+}
+
+document.querySelectorAll('footer a[data-modal]').forEach(a => {
+  a.addEventListener("click", (e) => {
+    e.preventDefault();
+    openPolicyModal(a.dataset.modal);
+  });
+});
+policyModalClose.addEventListener("click", closePolicyModal);
+policyModalBackdrop.addEventListener("click", closePolicyModal);
+document.addEventListener("keydown", (e) => { if(e.key === "Escape" && policyModal.style.display === "flex") closePolicyModal(); });
+
+render();
+syncFromSheet();
+</script>
+
+</body>
+</html>
