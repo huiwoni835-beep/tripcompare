@@ -928,7 +928,7 @@ async function syncFromSheet(){
    5) 비워두면(기본값) 위 disclosureText에 적어둔 기본 문구가 그대로 쓰입니다.
    6) disclosure 항목만 지금 지원하며, 필요하면 나중에 다른 key도 추가할 수 있어요.
 ============================================================ */
-const SETTINGS_CSV_URL = "";
+const SETTINGS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSuYAZFAtPJxIfnhf4rF-_W7HJAsUdtU-sZzWoScEnmQP2nIcrwhxce0Juv6vCvMtYdVrBydzDsy47v/pub?gid=2137491830&single=true&output=csv";
 
 async function syncSiteSettings(){
   if(!SETTINGS_CSV_URL) return;
