@@ -273,7 +273,7 @@
 
 <div class="disclosure">
   <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
-  본 페이지의 모든 "예약하러가기/보기/예약" 버튼은 제휴 링크입니다. 예약 성사 시 TripCompare가 수수료를 받을 수 있어요. 가격·정책은 예시이며 실제 결제 전 해당 서비스에서 최종 확인하세요.
+  <span id="disclosureText">[광고] 본 페이지의 모든 "예약하러가기/보기/예약" 버튼은 제휴 링크입니다. 예약 성사 시 TripCompare가 수수료를 받을 수 있어요. 가격·정책은 예시이며 실제 결제 전 해당 서비스에서 최종 확인하세요.</span>
 </div>
 
 <div class="topbar">
@@ -916,6 +916,43 @@ async function syncFromSheet(){
     console.warn("구글 시트 동기화에 실패해 기본 데이터를 사용합니다.", e);
   }
 }
+/* ============================================================
+   사이트 전역 문구(광고 고지 등) 구글 시트 연동
+   1) 같은 구글 시트 파일 안에 새 탭을 하나 만들고 이름을 "설정"이라고 짓습니다.
+   2) 첫 줄(헤더)에 key, value 두 컬럼을 만듭니다.
+   3) 아래 행에 원하는 문구를 넣습니다. 예:
+      key          | value
+      disclosure   | [광고] 이 페이지에는 세시간전 제휴링크가 포함되어 있습니다. 예약 성사 시 TripCompare가 수수료를 받을 수 있어요.
+   4) "설정" 탭에서 파일 > 공유 > 웹에 게시 > 시트 선택에서 반드시 "설정" 탭을 선택 > CSV로 게시
+      → 발급된 링크를 아래 SETTINGS_CSV_URL에 붙여넣으세요.
+   5) 비워두면(기본값) 위 disclosureText에 적어둔 기본 문구가 그대로 쓰입니다.
+   6) disclosure 항목만 지금 지원하며, 필요하면 나중에 다른 key도 추가할 수 있어요.
+============================================================ */
+const SETTINGS_CSV_URL = "";
+
+async function syncSiteSettings(){
+  if(!SETTINGS_CSV_URL) return;
+  try{
+    const res = await fetch(SETTINGS_CSV_URL, { cache: "no-store" });
+    if(!res.ok) throw new Error("설정 시트 응답 오류: " + res.status);
+    const text = await res.text();
+    const rows = parseCSV(text);
+    if(!rows.length) return;
+    const header = rows[0].map(h => h.trim().toLowerCase());
+    const iKey = header.indexOf("key"), iValue = header.indexOf("value");
+    if(iKey === -1 || iValue === -1) return;
+    const settings = {};
+    rows.slice(1).forEach(r => {
+      const key = (r[iKey] || "").trim();
+      if(key) settings[key] = (r[iValue] || "").trim();
+    });
+    if(settings.disclosure && disclosureText){
+      disclosureText.textContent = settings.disclosure;
+    }
+  }catch(e){
+    console.warn("설정 시트 동기화에 실패해 기본 문구를 사용합니다.", e);
+  }
+}
 /* ============================================================ */
 
 function formatReviews(n){
@@ -943,6 +980,7 @@ const comparePage = document.getElementById("comparePage");
 const comparePageSub = document.getElementById("comparePageSub");
 const backToMainBtn = document.getElementById("backToMainBtn");
 const mainSearch = document.getElementById("mainSearch");
+const disclosureText = document.getElementById("disclosureText");
 
 let compareSet = new Set();
 let currentSort = "popular";
@@ -1441,6 +1479,7 @@ document.addEventListener("keydown", (e) => { if(e.key === "Escape" && policyMod
 
 render();
 syncFromSheet();
+syncSiteSettings();
 </script>
 
 </body>
