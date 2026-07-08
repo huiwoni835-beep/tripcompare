@@ -106,6 +106,8 @@
   .rec-card-body{padding:22px 24px 22px;}
   .ribbon{position:absolute;top:12px;left:14px;background:var(--brand);color:#fff;font-size:12px;font-weight:800;padding:5px 12px;border-radius:999px;display:flex;align-items:center;gap:5px;box-shadow:0 3px 10px rgba(0,0,0,.2);z-index:2;}
   .ribbon .ic{width:13px;height:13px;}
+  .ribbon-soon{background:#4B5A66;}
+  .rec-card.is-soon .rec-photo{filter:grayscale(65%);opacity:.75;}
   .rec-top{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
   .rec-name{font-size:20px;font-weight:800;margin:0;line-height:1.3;}
   .rec-rating{font-size:13.5px;color:var(--warn);font-weight:700;}
@@ -122,6 +124,7 @@
   .rec-actions{display:flex;gap:10px;align-items:center;padding-top:2px;}
   .book-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;text-align:center;background:var(--cta);color:#fff;text-decoration:none;padding:14px;border-radius:12px;font-weight:800;font-size:15px;transition:.15s;box-shadow:0 6px 16px rgba(255,61,0,.35);}
   .book-btn:hover{background:var(--cta-dark);}
+  .book-btn.is-disabled{background:#C7CDD4;color:#5A6673;box-shadow:none;cursor:not-allowed;pointer-events:none;}
   .book-btn .ic{width:16px;height:16px;}
   .compare-check{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--sub);white-space:nowrap;cursor:pointer;padding:8px 4px;}
   .compare-check input{width:16px;height:16px;accent-color:var(--brand);cursor:pointer;}
@@ -239,6 +242,7 @@
   .row-label{display:flex;align-items:center;gap:7px;}
   .row-label .ic{width:15px;height:15px;color:var(--brand-dark);flex-shrink:0;}
   .compare-table .mini-cta{display:inline-block;background:var(--cta);color:#fff;text-decoration:none;font-size:12.5px;font-weight:700;padding:7px 12px;border-radius:8px;}
+  .compare-table .mini-cta.is-disabled{background:#C7CDD4;color:#5A6673;cursor:not-allowed;}
   .compare-table .specialty-cell{color:var(--brand-dark);font-weight:800;}
   .rating-value{font-weight:800;color:var(--ink);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
   .rating-bar-wrap{margin-top:7px;}
@@ -791,7 +795,7 @@ const SCOPE_LABELS = { domestic:"국내", international:"해외", both:"국내+�
    1) 구글 시트에 아래 헤더로 컬럼을 만드세요 (순서는 상관없음):
       name, cat, scope, rating, reviewCount, priceMin, priceUnit,
       tagline, highlights, caution, url, popular, badgeColor, badgeInitial, keywords,
-      specialty(선택), feeNote(선택), cancelNote(선택), logoDomain(선택), photoUrl(선택), aliasEn(선택)
+      specialty(선택), feeNote(선택), cancelNote(선택), logoDomain(선택), photoUrl(선택), aliasEn(선택), comingSoon(선택)
       - cat: 호텔·숙박 / 투어·종합 / 유심·로밍 중 하나
       - scope: 국내 / 해외 / 국내+해외 중 하나
       - highlights: 강점 여러 개는 " | " (파이프)로 구분해서 한 셀에 입력
@@ -808,6 +812,8 @@ const SCOPE_LABELS = { domestic:"국내", international:"해외", both:"국내+�
         비워두면(또는 로고를 못 불러오면) badgeColor/badgeInitial 배지로 자동 대체돼요.
       - photoUrl(선택): 카드 상단에 들어갈 사진 이미지 URL. 비워두면 카테고리별 기본 사진(스톡 이미지)이 자동으로 들어가요.
       - aliasEn(선택): 영어로도 검색되게 할 서비스의 영문 이름 (예: Yanolja). 메인 화면 검색창에서 영어로 입력해도 이 값과 매칭돼요.
+      - comingSoon(선택): TRUE로 설정하면 카드에 "준비중입니다" 배지가 뜨고, 예약 버튼이 눌리지 않는 회색 비활성 버튼으로 바뀌어요.
+        아직 제휴 링크가 준비 안 된 서비스는 이 값을 TRUE로 두고, url 칸은 비워두거나 임시 값을 넣어도 돼요. 준비되면 FALSE로 바꾸고 실제 url을 채우면 바로 활성화돼요.
       - popular: TRUE 또는 FALSE (인기 배지 여부)
       - badgeColor / badgeInitial: 비워두면 기본값 사용
       - priceMin/priceUnit: 사이트 화면에는 더 이상 표시하지 않지만, 컬럼 자체는 남겨둬도 무방해요.
@@ -854,7 +860,7 @@ function rowsToServices(rows){
     iReview = idx("reviewcount"), iPrice = idx("pricemin"), iUnit = idx("priceunit"),
     iTagline = idx("tagline"), iHighlights = idx("highlights"), iCaution = idx("caution"),
     iUrl = idx("url"), iPopular = idx("popular"), iColor = idx("badgecolor"), iInitial = idx("badgeinitial"),
-    iKeywords = idx("keywords"), iFeeNote = idx("feenote"), iCancelNote = idx("cancelnote"), iSpecialty = idx("specialty"), iLogoDomain = idx("logodomain"), iPhotoUrl = idx("photourl"), iAliasEn = idx("aliasen");
+    iKeywords = idx("keywords"), iFeeNote = idx("feenote"), iCancelNote = idx("cancelnote"), iSpecialty = idx("specialty"), iLogoDomain = idx("logodomain"), iPhotoUrl = idx("photourl"), iAliasEn = idx("aliasen"), iComingSoon = idx("comingsoon");
   if(iName === -1 || iUrl === -1) return null;
 
   return rows.slice(1)
@@ -886,6 +892,7 @@ function rowsToServices(rows){
         logoDomain: iLogoDomain === -1 ? "" : (r[iLogoDomain] || "").trim(),
         photoUrl: iPhotoUrl === -1 ? "" : (r[iPhotoUrl] || "").trim(),
         aliasEn: iAliasEn === -1 ? "" : (r[iAliasEn] || "").trim(),
+        comingSoon: /^(true|1|o|예|y)$/i.test((iComingSoon === -1 ? "" : (r[iComingSoon] || "")).trim()),
         url: (r[iUrl] || "").trim()
       };
     });
@@ -948,6 +955,7 @@ const WARN_ICON = `<svg class="ic" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.0
 const FIRE_ICON = `<svg class="ic fire-ic" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2c1 3-3 4-3 8a3 3 0 0 0 6 0c0-1-1-2-1-3 2 1 3 3 3 5a5 5 0 0 1-10 0c0-5 4-6 5-10Z"/></svg>`;
 const ARROW_ICON = `<svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`;
 const STAR_ICON = `★`;
+const CLOCK_ICON = `<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>`;
 
 // 카테고리별 기본 배경 사진 (임시 스톡 이미지 — 구글 시트의 photoUrl 컬럼으로 서비스별 교체 가능)
 const CATEGORY_PHOTOS = {
@@ -980,10 +988,11 @@ const SPECIALTY_ICON = `<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="
 function recCardHTML(s){
   const checked = compareSet.has(s.name) ? "checked" : "";
   const photo = s.photoUrl || CATEGORY_PHOTOS[s.cat] || CATEGORY_PHOTOS.hotel;
+  const soon = !!s.comingSoon;
   return `
-    <div class="rec-card">
+    <div class="rec-card${soon ? " is-soon" : ""}">
       <div class="rec-photo" style="background-image:url('${photo}');">
-        ${s.popular ? `<span class="ribbon">${FIRE_ICON}인기 많이 찾는 서비스</span>` : ""}
+        ${soon ? `<span class="ribbon ribbon-soon">${CLOCK_ICON}준비중입니다</span>` : (s.popular ? `<span class="ribbon">${FIRE_ICON}인기 많이 찾는 서비스</span>` : "")}
       </div>
       <div class="rec-card-body">
         <div class="rec-top">
@@ -1002,7 +1011,9 @@ function recCardHTML(s){
         <p class="card-section-label">이건 미리 확인하세요</p>
         <div class="caution-line">${WARN_ICON}${s.caution}</div>
         <div class="rec-actions">
-          <a class="book-btn" href="${s.url}" target="_blank" rel="noopener sponsored">예약하러가기 ${ARROW_ICON}</a>
+          ${soon
+            ? `<span class="book-btn is-disabled" aria-disabled="true">${CLOCK_ICON}준비중입니다</span>`
+            : `<a class="book-btn" href="${s.url}" target="_blank" rel="noopener sponsored">예약하러가기 ${ARROW_ICON}</a>`}
           <label class="compare-check">
             <input type="checkbox" data-name="${s.name}" ${checked}> 비교함
           </label>
@@ -1299,7 +1310,7 @@ function renderCompareModal(){
     </tr>
     <tr>
       <td><span class="row-label">${ICON_BOOK}예약</span></td>
-      ${selected.map(s => `<td><a class="mini-cta" href="${s.url}" target="_blank" rel="noopener sponsored">예약하러가기</a></td>`).join("")}
+      ${selected.map(s => `<td>${s.comingSoon ? `<span class="mini-cta is-disabled">준비중입니다</span>` : `<a class="mini-cta" href="${s.url}" target="_blank" rel="noopener sponsored">예약하러가기</a>`}</td>`).join("")}
     </tr>
   `;
 }
